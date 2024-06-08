@@ -6,7 +6,6 @@ import 'package:shopping/screens/cart_screen.dart';
 import 'package:shopping/screens/favourite_screen.dart';
 import 'package:shopping/screens/home_screen.dart';
 import 'package:shopping/screens/orders_screen.dart';
-import 'package:shopping/screens/userScreen.dart';
 
 class ProductScreen extends StatefulWidget {
   const ProductScreen({super.key});
@@ -72,14 +71,6 @@ class _ProductScreenState extends State<ProductScreen> {
               onTap: () {
                 Navigator.of(context).push(
                     MaterialPageRoute(builder: (ctx) => const OrdersScreen()));
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.edit),
-              title: const Text('Manage Products'),
-              onTap: () {
-                Navigator.of(context).push(MaterialPageRoute(
-                    builder: (ctx) => const UsersProductsScreen()));
               },
             ),
             ListTile(

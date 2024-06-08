@@ -42,7 +42,7 @@ class CartScreen extends StatelessWidget {
                   ),
                   title: Text(cartList.items.values.toList()[index].title),
                   subtitle: Text(
-                      'Total Rs:${(cartList.items.values.toList()[index].price * cartList.items.values.toList()[index].quantity)}'),
+                      'Total Rs:${(cartList.items.values.toList()[index].price * cartList.items.values.toList()[index].quantity).toStringAsFixed(0)}'),
                   trailing: Text(
                       '${cartList.items.values.toList()[index].quantity}X'),
                 ),
@@ -52,25 +52,19 @@ class CartScreen extends StatelessWidget {
           itemCount: cartList.items.length,
         )),
         Card(
-          margin: const EdgeInsets.all(15),
-          child: Padding(
-            padding: const EdgeInsets.all(8),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text(
-                  'Total',
-                  style: TextStyle(fontSize: 20),
-                ),
-                const SizedBox(
-                  width: 10,
-                ),
-                Chip(
-                    label:
-                        Text('Rs:${cartList.totalAmount.toStringAsFixed(2)}')),
-                OrderButton(),
-              ],
-            ),
+          margin: const EdgeInsets.all(10),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                'Total',
+                style: TextStyle(fontSize: 20),
+              ),
+              Chip(
+                  label:
+                      Text('Rs:${cartList.totalAmount.toStringAsFixed(0)}')),
+              OrderButton(),
+            ],
           ),
         ),
       ],
@@ -90,13 +84,13 @@ class _OrderButtonState extends State<OrderButton> {
   @override
   Widget build(BuildContext context) {
     final cartList = Provider.of<CartProvider>(context, listen: false);
+    final userData = Provider.of<UserData>(context, listen: false);
     return ElevatedButton(
-          style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(
-                0xFF25D366), // WhatsApp-like green button background
-            foregroundColor: Colors.white,
-          ),
-        
+        style: ElevatedButton.styleFrom(
+          backgroundColor:
+              const Color(0xFF25D366), // WhatsApp-like green button background
+          foregroundColor: Colors.white,
+        ),
         onPressed: (cartList.totalAmount <= 0 || isLoading)
             ? null
             : () async {
@@ -104,11 +98,17 @@ class _OrderButtonState extends State<OrderButton> {
                   isLoading = true;
                 });
                 try {
+                 final enteredname= userData.name;
+                 final enteredPhone= userData.phoneNo;
+                 final enteredAddress= userData.address;
                   await Provider.of<Orders>(context, listen: false).addOrder(
-                      cartList.items.values.toList(), cartList.totalAmount);
+                      cartList.items.values.toList(),
+                      cartList.totalAmount,
+                      enteredname,enteredPhone,enteredAddress);
                 } catch (error) {
                   err = true;
-                  Get.snackbar('Check your Internet Connection', error.toString());
+                  Get.snackbar(
+                      'Check your Internet Connection', error.toString());
                 }
                 setState(() {
                   isLoading = false;
@@ -117,8 +117,9 @@ class _OrderButtonState extends State<OrderButton> {
                   cartList.clear();
                   Get.snackbar('Order Placed', '');
                 }
-                return null;
               },
-        child: isLoading ?const CircularProgressIndicator() :const Text('ORDER NOW'));
+        child: isLoading
+            ? const CircularProgressIndicator()
+            : const Text('ORDER NOW'));
   }
 }

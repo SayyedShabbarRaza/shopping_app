@@ -2,40 +2,11 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:shopping/models/Model.dart';
+import 'package:shopping/models/model.dart';
 import 'package:http/http.dart' as http;
 
 class Providerr extends ChangeNotifier {
-  List<Product> _list = [
-    Product(
-        id: 'p1',
-        title: 'Kurta',
-        description: 'Shalwar Kameez is national dress',
-        price: 39.99,
-        imageUrl:
-            'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSi3qg2AOu1ZhHLwUaKVt6usfcq54OE8c6eSA&s'),
-    // Product(
-    //     id: 'p2',
-    //     title: 'waistcoat',
-    //     description: 'A Red Shirt',
-    //     price: 15.99,
-    //     imageUrl:
-    //         'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSi3qg2AOu1ZhHLwUaKVt6usfcq54OE8c6eSA&s'),
-    // Product(
-    //     id: 'p3',
-    //     title: 'Shalwar Kameez',
-    //     description: 'A Red Shirt',
-    //     price: 29.99,
-    //     imageUrl:
-    //         'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRKCXHk0XXPD0r4QJm2fK3HWfHQh-9adp63rA&s'),
-    // Product(
-    //     id: 'p4',
-    //     title: 'Red Shirt',
-    //     description: 'A Red Shirt',
-    //     price: 19.99,
-    //     imageUrl:
-    //         'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQyhGBv8KUt-Q1ovsiuhDB2ytGSAs7JvY0OBw&s'),
-  ];
+  List<Product> _list = [];
   final String authToken;
   Providerr(this.authToken, this._list);
   List<Product> get list => _list;
@@ -43,38 +14,11 @@ class Providerr extends ChangeNotifier {
     return _list.firstWhere((prod) => prod.id == id);
   }
 
-  Future<void> add(Product product) async {
-    final url = Uri.https('shoppingapp-a1a41-default-rtdb.firebaseio.com',
-        '/products.json', {'auth': authToken});
-    try {
-      final response = await http.post(url,
-          body: json.encode({
-            'title': product.title,
-            'description': product.description,
-            'price': product.price,
-            'imageUrl': product.imageUrl,
-          }));
-      final newProduct = Product(
-          id: json.decode(response.body)['name'],
-          title: product.title,
-          description: product.description,
-          price: product.price,
-          imageUrl: product.imageUrl);
-      _list.add(newProduct);
-      notifyListeners();
-    } catch (error) {
-      throw error;
-    }
-  }
-
   Future<void> fetchData() async {
     final url = Uri.https('shoppingapp-a1a41-default-rtdb.firebaseio.com',
         '/products.json', {'auth': authToken});
     final response = await http.get(url);
     final extractedData = json.decode(response.body) as Map<String, dynamic>;
-    if (extractedData == null) {
-      return;
-    }
     final List<Product> loadedProducts = [];
     extractedData.forEach((productId, productData) {
       loadedProducts.add(Product(
@@ -85,29 +29,6 @@ class Providerr extends ChangeNotifier {
           imageUrl: productData['imageUrl']));
     });
     _list = loadedProducts;
-    notifyListeners();
-  }
-
-  void updateProduct(String id, Product newProduct) async {
-    final prodIndex = _list.indexWhere((element) => element.id == id);
-    final url = Uri.https('shoppingapp-a1a41-default-rtdb.firebaseio.com',
-        '/products/$id.json', {'auth': authToken});
-    await http.patch(url,
-        body: json.encode({
-          'title': newProduct.title,
-          'description': newProduct.description,
-          'price': newProduct.price,
-          'imageUrl': newProduct.imageUrl,
-        }));
-    _list[prodIndex] = newProduct;
-    notifyListeners();
-  }
-
-  Future<void> remove(String id) async {
-    final url = Uri.https('shoppingapp-a1a41-default-rtdb.firebaseio.com',
-        '/products/$id.json', {'auth': authToken});
-    await http.delete(url);
-    _list.removeWhere((element) => element.id == id);
     notifyListeners();
   }
 }
@@ -177,6 +98,22 @@ class CartProvider extends ChangeNotifier {
   }
 }
 
+class UserData extends ChangeNotifier {
+  String _name = 'NoName';
+  String get name => _name;
+  String _phoneNo = 'NoNumber';
+  String get phoneNo => _phoneNo;
+  String _address = 'NOAddress';
+  String get address => _address;
+
+  void addName(String name, String phoneNO, String address) {
+    _name = name;
+    _phoneNo = phoneNO;
+    _address = address;
+    notifyListeners();
+  }
+}
+
 class Orders extends ChangeNotifier {
   List<OrderItems> _orders = [];
   List<OrderItems> get orders => _orders;
@@ -188,9 +125,6 @@ class Orders extends ChangeNotifier {
         '/$userId/orders.json', {'auth': authToken});
     final response = await http.get(url);
     final extractedData = json.decode(response.body) as Map<String, dynamic>;
-    if (extractedData == null) {
-      return;
-    }
     final List<OrderItems> loadedProducts = [];
     extractedData.forEach((orderId, productData) {
       loadedProducts.add(OrderItems(
@@ -210,14 +144,39 @@ class Orders extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> addOrder(List<CartItems> cartProducts, double total) async {
+  Future<void> addOrder(
+      List<CartItems> cartProducts, double total, String enteredName, String phoneNO, String address) async {
     final url = Uri.https('shoppingapp-a1a41-default-rtdb.firebaseio.com',
         '/$userId/orders.json', {'auth': authToken});
     final timestamp = DateTime.now();
     final response = await http.post(url,
         body: json.encode({
+          //An Id is automatically generated
+          'name': enteredName,
+          'phoneNO': phoneNO,
+          'address': address,
           'amount': total,
           'dateTime': timestamp.toIso8601String(),
+          'products': cartProducts
+              .map((cp) => {
+                    'id': cp.id,
+                    'title': cp.title,
+                    'quantity': cp.quantity,
+                    'price': cp.price,
+                  })
+              .toList(),
+        }));
+    // Logic for Admin Side
+    final url1 = Uri.https('shoppingapp-a1a41-default-rtdb.firebaseio.com',
+        '/orders.json', {'auth': authToken});
+    final timestamp1 = DateTime.now();
+   await http.post(url1,
+        body: json.encode({
+          'name': enteredName,
+          'phoneNO': phoneNO,
+          'address': address,
+          'amount': total,
+          'dateTime': timestamp1.toIso8601String(),
           'products': cartProducts
               .map((cp) => {
                     'id': cp.id,
@@ -292,7 +251,7 @@ class Auth extends ChangeNotifier {
       });
       prefs.setString('key', userData);
     } catch (error) {
-      throw error;
+      rethrow;
     }
   }
 

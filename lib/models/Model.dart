@@ -27,16 +27,9 @@ class CartItems {
     required this.title,
     required this.quantity,
     required this.price,
-   });
-//     Map<String, dynamic> toJson() {
-//     return {
-//       'id': id,
-//       'title': title,
-//       'quantity': quantity,
-//       'price': price,
-//     };
-//   }
+  });
 }
+
 
 class OrderItems {
   final String id;
@@ -44,5 +37,9 @@ class OrderItems {
   final List<CartItems> products;
   final DateTime dateTime;
 
-  OrderItems({required this.id,required this.amount,required this.dateTime,required this.products});
+  OrderItems(
+      {required this.id,
+      required this.amount,
+      required this.dateTime,
+      required this.products});
 }

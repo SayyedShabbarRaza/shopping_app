@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class SplashScreen extends StatelessWidget {
-  const SplashScreen({Key? key});
+  const SplashScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -24,7 +24,6 @@ class SplashScreen extends StatelessWidget {
             children: [
               Text(
                 'Shop It',
-                // textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 40,
                   fontWeight: FontWeight.bold,
@@ -33,7 +32,7 @@ class SplashScreen extends StatelessWidget {
                     Shadow(
                       blurRadius: 4,
                       color: Colors.black.withOpacity(0.5),
-                      offset: Offset(2, 2),
+                      offset:const Offset(2, 2),
                     ),
                   ],
                 ),

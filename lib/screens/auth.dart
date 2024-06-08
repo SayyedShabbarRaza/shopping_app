@@ -1,8 +1,6 @@
-import 'dart:convert';
+import 'package:flutter/material.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_navigation/get_navigation.dart';
-import 'package:http/http.dart' as http;
-import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shopping/models/provider.dart';
 
@@ -17,10 +15,11 @@ class _AuthScreenState extends State<AuthScreen> {
   final form = GlobalKey<FormState>();
   var enteredEmail = '';
   var enteredPassword = '';
-  var confirmPassword = '';
   var isLogin = true;
   var isAuthenticating = false;
-  var enteredUsername;
+  var enteredName;
+  var phoneNo;
+  var address;
 
   Future<void> submit() async {
     if (!form.currentState!.validate()) {
@@ -37,15 +36,17 @@ class _AuthScreenState extends State<AuthScreen> {
         await Provider.of<Auth>(context, listen: false)
             .login(enteredEmail, enteredPassword);
       } catch (error) {
-         Get.snackbar('An error occured', error.toString());
+        Get.snackbar('An error occured', error.toString());
       }
     } else {
       // signup
       try {
         await Provider.of<Auth>(context, listen: false)
             .signup(enteredEmail, enteredPassword);
+        Provider.of<UserData>(context, listen: false).addName(enteredName,phoneNo,address);
+        // print(enteredName);
       } catch (error) {
-         Get.snackbar('An error occured', error.toString());
+        Get.snackbar('An error occured', error.toString());
       }
     }
 
@@ -65,8 +66,8 @@ class _AuthScreenState extends State<AuthScreen> {
             children: [
               Container(
                 margin: const EdgeInsets.only(
-                  top: 30,
-                  bottom: 20,
+                  top: 10,
+                  bottom: 10,
                   left: 20,
                   right: 20,
                 ),
@@ -97,9 +98,81 @@ class _AuthScreenState extends State<AuthScreen> {
                               ),
                             ],
                           ),
+                          if (!isLogin)
+                            TextFormField(
+                              decoration: const InputDecoration(
+                                  border: OutlineInputBorder(
+                                      borderRadius:
+                                          BorderRadius.all(Radius.circular(5))),
+                                  labelText: "Your Name",
+                                  icon: Icon(Icons.person)),
+                              validator: (value) {
+                                if (value == null ||
+                                    value.trim().isEmpty ||
+                                    value.trim().length < 3) {
+                                  return 'min lenght=4/Field can\'t be empty';
+                                }
+                                return null;
+                              },
+                              onSaved: (value) {
+                                enteredName = value!;
+                              },
+                            ),
+                          const SizedBox(
+                            height: 10,
+                          ),
+                          if (!isLogin)
+                            TextFormField(
+                              keyboardType: TextInputType.number,
+                              decoration: const InputDecoration(
+                                  border: OutlineInputBorder(
+                                      borderRadius:
+                                          BorderRadius.all(Radius.circular(5))),
+                                  labelText: "Phone no",
+                                  icon: Icon(Icons.phone)),
+                              validator: (value) {
+                                if (value == null ||
+                                    value.trim().isEmpty ||
+                                    value.trim().length < 10) {
+                                  return 'Field can\'t be empty';
+                                }
+                                return null;
+                              },
+                              onSaved: (value) {
+                                phoneNo = value!;
+                              },
+                            ),
+                          const SizedBox(
+                            height: 10,
+                          ),
+                          if (!isLogin)
+                            TextFormField(
+                              decoration: const InputDecoration(
+                                  border: OutlineInputBorder(
+                                      borderRadius:
+                                          BorderRadius.all(Radius.circular(5))),
+                                  labelText: "Address of delivery",
+                                  icon: Icon(Icons.home)),
+                              validator: (value) {
+                                if (value == null || value.trim().isEmpty) {
+                                  return 'Field can\'t be empty';
+                                }
+                                return null;
+                              },
+                              onSaved: (value) {
+                                address = value!;
+                              },
+                            ),
+                          const SizedBox(
+                            height: 10,
+                          ),
                           TextFormField(
                             decoration: const InputDecoration(
-                                labelText: "Email Address"),
+                                border: OutlineInputBorder(
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(5))),
+                                labelText: "Email Address",
+                                icon: Icon(Icons.email)),
                             keyboardType: TextInputType.emailAddress,
                             autocorrect: false,
                             textCapitalization: TextCapitalization.none,
@@ -115,9 +188,17 @@ class _AuthScreenState extends State<AuthScreen> {
                               enteredEmail = value!;
                             },
                           ),
+                         const SizedBox(
+                            height: 10,
+                          ),
                           TextFormField(
-                            decoration:
-                                const InputDecoration(labelText: "Password"),
+                            decoration: const InputDecoration(
+                              labelText: "Password",
+                              icon: Icon(Icons.lock),
+                              border: OutlineInputBorder(
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(5))),
+                            ),
                             obscureText: true,
                             validator: (value) {
                               if (value == null ||
@@ -136,25 +217,10 @@ class _AuthScreenState extends State<AuthScreen> {
                               enteredPassword = value!;
                             },
                           ),
-                          if (!isLogin)
-                            TextFormField(
-                              decoration: const InputDecoration(
-                                  labelText: "Confirm Password"),
-                              obscureText: true,
-                              validator: (value) {
-                                if (value == null ||
-                                    value.trim().isEmpty ||
-                                    value != enteredPassword) {
-                                  return 'Passwords do not match';
-                                }
-                                return null;
-                              },
-                              onSaved: (value) {
-                                confirmPassword = value!;
-                              },
-                            ),
-                          const SizedBox(height: 12),
-                          if (isAuthenticating) CircularProgressIndicator(),
+                         const SizedBox(
+                            height: 10,
+                          ),
+                          if (isAuthenticating)const CircularProgressIndicator(),
                           if (!isAuthenticating)
                             ElevatedButton(
                               onPressed: submit,

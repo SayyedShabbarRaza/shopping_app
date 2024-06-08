@@ -13,11 +13,11 @@ class ProductDetails extends StatelessWidget {
       required this.price});
   @override
   Widget build(BuildContext context) {
-    // final cart = Provider.of<CartProvider>(context);
     return Scaffold(
       body: Column(
         children: [
-          Container(color: Colors.amber.withOpacity(0.5),
+          Container(
+            color: Colors.amber.withOpacity(0.5),
             height: 400,
             width: double.infinity,
             child: Image.network(
@@ -25,7 +25,10 @@ class ProductDetails extends StatelessWidget {
               fit: BoxFit.contain,
             ),
           ),
-          Text('Rs:$price',style:const TextStyle(color: Colors.amber,fontSize: 20),),
+          Text(
+            'Rs:${price.toStringAsFixed(0)}',
+            style: const TextStyle(color: Colors.amber, fontSize: 20),
+          ),
           Text(description)
         ],
       ),

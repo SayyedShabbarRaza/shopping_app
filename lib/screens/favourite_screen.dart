@@ -9,11 +9,11 @@ class FavouriteScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
         final list = Provider.of<Providerr>(context).list;
-    final FavList = Provider.of<FavouriteProvider>(context);
+    final favList = Provider.of<FavouriteProvider>(context);
     return Scaffold(
       body: GridView.builder(
       padding: const EdgeInsets.all(10.0),
-      itemCount: FavList.favList.length,
+      itemCount: favList.favList.length,
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 2,
           childAspectRatio: 3 / 2,
@@ -25,7 +25,7 @@ class FavouriteScreen extends StatelessWidget {
           child: GridTileBar(
             backgroundColor: Colors.black87,
             title: Text(
-             list[FavList.favList[index]].title,
+             list[favList.favList[index]].title,
               style: Theme.of(context)
                   .textTheme
                   .labelLarge
@@ -43,7 +43,7 @@ class FavouriteScreen extends StatelessWidget {
                     )));
           },
           child: Image.network(
-            list[FavList.favList[index]].imageUrl,
+            list[favList.favList[index]].imageUrl,
             fit: BoxFit.contain,
           ),
         ),

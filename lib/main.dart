@@ -20,18 +20,19 @@ class MyApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(create: (ctx) => Auth()),
         ChangeNotifierProxyProvider<Auth, Providerr>(
-          create: (ctx) => Providerr('', []),  // Initialize with default values
+          create: (ctx) => Providerr('', []), 
           update: (context, auth, previous) => Providerr(
-            auth.token ?? '',  // Handle the case where token might be null
+            auth.token ?? '', 
             previous == null ? [] : previous.list,
           ),
         ),
         ChangeNotifierProvider(create: (ctx) => FavouriteProvider()),
         ChangeNotifierProvider(create: (ctx) => CartProvider()),
+        ChangeNotifierProvider(create: (ctx) => UserData()),
         ChangeNotifierProxyProvider<Auth, Orders>(
-          create: (ctx) => Orders('', [],''),  // Initialize with default values
+          create: (ctx) => Orders('', [],''),  
           update: (context, auth, previous) => Orders(
-            auth.token ?? '',  // Handle the case where token might be null
+            auth.token ?? '',  
             previous == null ? [] : previous.orders,auth.userId??'',
           ),
         ),
@@ -46,17 +47,17 @@ class MyApp extends StatelessWidget {
             useMaterial3: true,
           ),
           home: auth.isAuth
-              ? ProductScreen()
+              ?const ProductScreen()
               : FutureBuilder(
                   future: auth.tryAutoLogin(),
                   builder: (context, AsyncSnapshot<bool> snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
-                      return SplashScreen(); // Replace with your loading widget
+                      return const SplashScreen();
                     } else {
                       if (snapshot.hasError || snapshot.data == false) {
-                        return AuthScreen(); // Auto-login failed, show login screen
+                        return const AuthScreen(); 
                       } else {
-                        return ProductScreen(); // Auto-login successful, show main screen
+                        return const ProductScreen();
                       }
                     }
                   },
